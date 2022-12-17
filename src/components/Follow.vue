@@ -52,6 +52,7 @@
 import {queryName} from 'nostr-tools/nip05'
 
 import helpersMixin from '../utils/mixin'
+import {bech32} from 'bech32'
 
 export default {
   mixins: [helpersMixin],
@@ -65,6 +66,14 @@ export default {
   methods: {
     async searchProfile() {
       this.searchingProfile = this.searchingProfile.trim().toLowerCase()
+      if (this.searchingProfile.match(/^npub1[a-z0-9]+$/)) {
+        const profile = bech32
+          .fromWords(bech32.decode(this.searchingProfile).words)
+          .map(n => n.toString(16).padStart(2, '0'))
+          .join('')
+        this.toProfile(profile)
+        this.searchingProfile = ''
+      }
 
       if (this.searchingProfile.match(/^[a-f0-9A-F]{64}$/)) {
         this.toProfile(this.searchingProfile)
